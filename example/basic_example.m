@@ -1,7 +1,7 @@
 %% Compute HSS factorization from matvecs
 
 % size of matrix
-n   = 500;
+n   = 10000;
 % rank of block row
 r   = 10;
 % number of random matvecs
@@ -42,12 +42,10 @@ fprintf("Frobenius error: %.3e\n", norm(K - HK,'fro'))
 
 %% Plot dense and compressed matrices and the log error
 
-addpath cmap
-
 figure(1)
 clf
 
-colormap(inferno)
+colormap(parula)
 
 subplot('Position', [0.02, 0.1, 0.3, 0.8]);
 imagesc(K);
@@ -67,21 +65,4 @@ axis square
 colormap(ax, turbo)
 colorbar
 title('$\log_{10}|K - \tilde{K}|$','Interpreter','latex','FontSize',24)
-
-%% Plot factors (this may be very slow for large matrices)
-
-fig = figure(2);
-clf
-
-marg = 0.01;
-left = marg;
-sc   = (1-3*marg) / (2*sum(cellfun(@(F) size(F,1), A.U)) + sum(cellfun(@(F) size(F,1), A.D)));
-for l=A.tree.lvl:-1:1
-    left = plot_factor(fig, A.U{l+1}, marg, sc, left);
-end
-left = plot_factor(fig, A.D{1}, marg, sc, left);
-for l=1:A.tree.lvl
-    left = plot_factor(fig, A.V{l+1}', marg, sc, left);
-    left = plot_factor(fig, A.D{l+1},  marg, sc, left);
-end
 
