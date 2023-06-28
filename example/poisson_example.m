@@ -5,7 +5,7 @@ n   = 1000;
 % number of horizontal points in grid
 m   = 51; if mod(m,2) == 0; m = m+1; end
 % rank of block row
-r   = 15;
+r   = 20;
 % number of random matvecs
 s   = 3*r;
 % level of factorization hierarchy

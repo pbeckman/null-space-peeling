@@ -19,5 +19,9 @@ classdef IndexTree
                 tree.idx{l+1} = idxl;
             end
         end
+        function a = ancestor(~, al, b, cl)
+            % index of ancestor at level al for child box b at level cl
+            a = fix((b-1) / 2^(cl-al)) + 1;
+        end
     end
 end

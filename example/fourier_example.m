@@ -1,7 +1,7 @@
 %% Compute HSS factorization from matvecs
 
 % size of matrix
-n   = 10000;
+n   = 1000;
 % rank of block row
 r   = 10;
 % number of random matvecs

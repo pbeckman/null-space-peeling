@@ -1,4 +1,12 @@
 classdef HSSMatrix
+    % HSSMatrix Hierarchically Semi-Separable Matrix
+    % HSS factorization in "telescoping" form 
+    % A = A_L = U_L A_{L-1} V_L^* + D_L with constructor  based on 
+    % "Linear-complexity black-box randomized compression of hierarchically 
+    % block separable matrices" by Levitt and Martinsson 2022.
+    %
+    % Each of the U, V, and D factors are block diagonal (implemented 
+    % using BDMatrix).
     properties
         tree
         U
@@ -30,9 +38,8 @@ classdef HSSMatrix
                 UB = cell(2^l,1); VB = cell(2^l,1); DB = cell(2^l,1);
 
                 for b=1:2^l
-                    % box indices and size
+                    % box indices
                     idxb = idxl{b};
-                    nb   = idxb(2)-idxb(1)+1;
                     
                     % extract column basis
                     Wb = W(range(idxb),:);
@@ -52,10 +59,10 @@ classdef HSSMatrix
                         VB{b} = col_basis(Zb*Qb, r);
 
                         % compute discrepancy
-                        DB{b} = (Yb - UB{b}*(UB{b}'*Yb))/Wb + UB{b}*(UB{b}'*((Zb - VB{b}*(VB{b}'*Zb))/Sb)');
+                        DB{b} = (Yb - UB{b}*(UB{b}'*Yb)) * pinv(Wb) + UB{b}*(UB{b}'*((Zb - VB{b}*(VB{b}'*Zb)) * pinv(Sb))');
                     else
                         % compute discrepancy
-                        DB{b} = Yb/Wb;
+                        DB{b} = Yb * pinv(Wb);
                     end
                 end
 
@@ -102,6 +109,9 @@ classdef HSSMatrix
             end
 
             B = A.U{end}*B + A.D{end}*X;
+        end
+        function M = dense(A)
+            M = A * eye(size(A));
         end
     end
 end
