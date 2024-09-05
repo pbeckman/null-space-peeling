@@ -12,16 +12,26 @@ classdef BlockMatrix
             A.idx1 = cell(size(blocks,1),1);
             A.idx2 = cell(size(blocks,2),1);
 
-            i1 = 1;
-            for b=1:size(blocks,1)
-                A.idx1{b} = [i1, i1+size(blocks{b,1},1)-1];
-                i1 = i1 + size(blocks{b,1},1);
+            i0 = 1;
+            for i=1:size(blocks,1)
+                heights    = cellfun(@(b) size(b,1), blocks(i,:));
+                row_height = max(heights);
+                if min(heights(heights > 0)) ~= row_height
+                    error("Blocks in row %i have incompatible heights - cannot construct block matrix.", i)
+                end
+                A.idx1{i} = [i0, i0+row_height-1];
+                i0 = i0 + row_height;
             end
 
-            i2 = 1;
-            for b=1:size(blocks,2)
-                A.idx2{b} = [i2, i2+size(blocks{1,b},2)-1];
-                i2 = i2 + size(blocks{1,b},2);
+            j0 = 1;
+            for j=1:size(blocks,2)
+                widths    = cellfun(@(b) size(b,2), blocks(:,j));
+                row_width = max(widths);
+                if min(widths(widths > 0)) ~= row_width
+                    error("Blocks in column %i have incompatible wdiths - cannot construct block matrix.", j)
+                end
+                A.idx2{j} = [j0, j0+row_width-1];
+                j0 = j0 + row_width;
             end
         end
         function s = size(A, dim)
@@ -54,7 +64,9 @@ classdef BlockMatrix
             B = zeros(m, k);
             for i=1:size(A.M, 1)
                 for j=1:size(A.M, 2)
-                    B(range(A.idx1{i}),:) = B(range(A.idx1{i}),:) + A.M{i,j}*X(range(A.idx2{j}),:);
+                    if all(size(A.M{i,j}) > 0)
+                        B(range(A.idx1{i}),:) = B(range(A.idx1{i}),:) + A.M{i,j}*X(range(A.idx2{j}),:);
+                    end
                 end
             end
         end
@@ -62,11 +74,16 @@ classdef BlockMatrix
             S = sparse(size(A,1), size(A,2));
             for i=1:size(A.M, 1)
                 for j=1:size(A.M, 2)
-                    S(range(A.idx1{i}), range(A.idx2{j})) = sparse(A.M{i,j});
+                    if all(size(A.M{i,j}) > 0)
+                        S(range(A.idx1{i}), range(A.idx2{j})) = sparse(A.M{i,j});
+                    end
                 end
             end
 %             C = cellfun(@sparse, A.M, 'UniformOutput', false);
 %             S = cat(2, cat(1, C{:,:}));
+        end
+        function M = dense(A)
+            M = A * eye(size(A, 2));
         end
     end
 end

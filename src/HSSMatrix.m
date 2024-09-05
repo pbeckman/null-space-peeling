@@ -111,7 +111,7 @@ classdef HSSMatrix
             B = A.U{end}*B + A.D{end}*X;
         end
         function M = dense(A)
-            M = A * eye(size(A));
+            M = A * eye(size(A, 2));
         end
     end
 end
